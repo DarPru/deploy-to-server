@@ -7,10 +7,16 @@ on:
   pull_request:
     branches:
       - main
+  # Schedule posting comment it if you don't need it
+  schedule:
+    - cron: '0 12 * * *' # set posting time
+  # end Schedule posting
 
 env:
+  # Telegram notifucations vars comment it if you don't need it
   TG_CHAT: ${{ secrets.TG_CHAT }}
   TG_TOKEN: ${{ secrets.TG_TOKEN }}
+  # end Telegram notifucations vars
   SITE_HOST: ${{ secrets.SITE_IP }}
   SITE: ${{ secrets.SITE_NAME }}
 
@@ -19,16 +25,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2    
+    - uses: actions/checkout@v2   
+     # Hugo building comment it if you don't need it  
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v2
       with:
        hugo-version: 'latest'
-       extended: true
-        
+       extended: true 
     - name: Build
       run: hugo
-      
+    # end Hugo building  
     - name: rsync deployments
       uses: burnett01/rsync-deployments@5.2
       with:
@@ -39,6 +45,7 @@ jobs:
         remote_user: root
         remote_key: ${{ secrets.DEPLOY_KEY }}
 
+      # This is Telegram notifucations block, comment it if you don't need it
     - name: telegram success
       uses: appleboy/telegram-action@master
       if: ${{ success() }}
@@ -63,3 +70,4 @@ jobs:
              🔗 The problem is in  action №${{github.run_number}}: https://github.com/${{github.repository}}/actions
           format: markdown
           disable_web_page_preview: "True"
+          # end of Telegram notifucations
