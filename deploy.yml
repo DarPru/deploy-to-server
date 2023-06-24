@@ -1,0 +1,65 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  TG_CHAT: ${{ secrets.TG_CHAT }}
+  TG_TOKEN: ${{ secrets.TG_TOKEN }}
+  SITE_HOST: ${{ secrets.SITE_IP }}
+  SITE: ${{ secrets.SITE_NAME }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2    
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+       hugo-version: 'latest'
+       extended: true
+        
+    - name: Build
+      run: hugo
+      
+    - name: rsync deployments
+      uses: burnett01/rsync-deployments@5.2
+      with:
+        switches: -avzr --delete --chown=www-data:www-data 
+        path: ./public/.
+        remote_path: /var/www/${{env.SITE}}/htdocs
+        remote_host:  ${{env.SITE_HOST}}
+        remote_user: root
+        remote_key: ${{ secrets.DEPLOY_KEY }}
+
+    - name: telegram success
+      uses: appleboy/telegram-action@master
+      if: ${{ success() }}
+      with:
+          to: ${{env.TG_CHAT}}
+          token: ${{env.TG_TOKEN}}
+          message: |
+           ✅ *Site *${{env.SITE}}* successfully updated*
+            *${{ github.actor }}* did the following actions: ${{ github.event.head_commit.message }}
+            🔗 Push: ${{ github.event.head_commit.url }}. 
+          format: markdown
+          disable_web_page_preview: "True"
+    - name: telegram failure
+      uses: appleboy/telegram-action@master
+      if: ${{ failure() }}
+      with:
+          to: ${{env.TG_CHAT}}
+          token: ${{env.TG_TOKEN}}
+          message: |
+            ❌ *As error has occurred*
+            *${{ github.actor }}* couldn't update *${{github.repository}}*. 
+             🔗 The problem is in  action №${{github.run_number}}: https://github.com/${{github.repository}}/actions
+          format: markdown
+          disable_web_page_preview: "True"
