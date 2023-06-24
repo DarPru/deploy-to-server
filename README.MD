@@ -10,7 +10,7 @@ This script allows you to publish content from github directly to your webserver
 6. Create a chat in telegram where you want to have your notifications and [get a chart id](https://splaitor.com/how-to-find-a-chat-id-in-telegram/) 
 7. Save your tg bot id in **TG_TOKEN** secrets var and your chart id in **TG_CHAT**. Use point 3 of following to do list
 8. Add your site ip to var **SITE_IP** and the site name to **SITE_NAME** the same as described above
-9. Click **actions** -> ** set up a workflow yourself ** and add the code from this repo there
+9. Click **actions** -> **set up a workflow yourself** and add the code from this repo there
 
 You need to setup this script just once, after that you will have auto pushing system in your repo.
 
